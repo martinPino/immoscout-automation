@@ -19,8 +19,6 @@
     "electron:pack": "npm run build && npm run electron:compile && electron-builder --dir"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "electron-store": "8.2.0",
     "electron-updater": "^6.8.9",
     "firebase": "^11.10.0",

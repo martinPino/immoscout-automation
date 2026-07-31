@@ -1,9 +1,13 @@
 import type { AppProps } from "next/app";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
 import "../styles/globals.css";
 import LicenseGate from "@/components/LicenseGate";
 import TitleBar from "@/components/TitleBar";
+
+// Note: no Vercel Analytics / Speed Insights here on purpose. This Next app is
+// the Electron desktop UI — it is served by the bundled standalone server on
+// localhost and never runs on Vercel's edge, so those trackers only produce
+// 404s against /_vercel/... and would ship tracking code in an app advertised
+// as collecting no data. They live in docs/index.html, the page Vercel serves.
 
 export default function App({ Component, pageProps }: AppProps) {
   // LicenseGate enforces the paywall inside the packaged Electron app. In a
@@ -16,8 +20,6 @@ export default function App({ Component, pageProps }: AppProps) {
           screen — including while the paywall or onboarding overlay is up. */}
       <TitleBar />
       <Component {...pageProps} />
-      <SpeedInsights />
-      <Analytics />
     </LicenseGate>
   );
 }

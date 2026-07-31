@@ -1243,5 +1243,13 @@
     load();
   </script>
 
+  <!-- Vercel Web Analytics + Speed Insights.
+       This static page is what Vercel actually serves, so the trackers belong
+       here — not in the Electron app's Next.js renderer, which runs on
+       localhost and never reaches Vercel's edge. Both are cookieless; see
+       /datenschutz.html. -->
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+
 </body>
 </html>
