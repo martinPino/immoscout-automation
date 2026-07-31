@@ -156,7 +156,7 @@ export default function Home() {
         <title>{t.appTitle}</title>
       </Head>
       {showOnboarding && <Onboarding t={t} onComplete={completeOnboarding} />}
-      <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="app-titlebar-pad min-h-screen bg-gray-50 py-8 px-4">
         <div className="mx-auto max-w-5xl">
 
           {/* Header */}

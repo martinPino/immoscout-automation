@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Electron window chrome
+
+   The main window uses titleBarStyle: "hiddenInset", so there is no native
+   title bar and the web content covers the whole window. macOS then offers no
+   draggable area on its own — a region has to opt in via -webkit-app-region.
+   See src/components/TitleBar.tsx.
+   --------------------------------------------------------------------------- */
+
+/* Drags the window when the user presses and moves inside this element. */
+.app-drag {
+  -webkit-app-region: drag;
+}
+
+/* Interactive elements inside a drag region must opt out, otherwise they stop
+   receiving clicks. */
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Headroom so page content never sits under the traffic lights. `is-electron`
+   is set on <body> by TitleBar, so the plain browser build is unaffected. */
+body.is-electron .app-titlebar-pad {
+  padding-top: 3rem;
+}
