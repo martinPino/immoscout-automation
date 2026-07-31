@@ -219,7 +219,9 @@ export async function openLoginWindow(): Promise<void> {
   }
 }
 
-async function isCDPAvailable(): Promise<boolean> {
+// Exported so the scheduler can pre-launch Chrome before a timed run; without
+// the export its guard silently short-circuits on an undefined binding.
+export async function isCDPAvailable(): Promise<boolean> {
   try {
     const { default: http } = await import("http");
     return await new Promise((resolve) => {
