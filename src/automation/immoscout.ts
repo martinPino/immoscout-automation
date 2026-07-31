@@ -27,6 +27,24 @@ import type { AppConfig, LogEntry } from "../types";
 
 const CDP_PORT = 9222;
 const CDP_URL = `http://localhost:${CDP_PORT}`;
+
+/**
+ * Options for every connectOverCDP() call.
+ *
+ * `noDefaults` is REQUIRED on Chrome 147+. When attaching, Playwright otherwise
+ * sends `Browser.setDownloadBehavior` for the default browser context. Chromium
+ * changed `DevToolsBrowserContextManager::GetDefaultBrowserContext()` to use
+ * `ProfileManager::GetLastUsedProfileIfLoaded()` (shipped in M147), which
+ * returns null while the profile is not loaded — e.g. Chrome is alive and
+ * serving CDP but has no window/tab open, exactly the state left behind after a
+ * run closes its last tab. The call then fails with "Browser context management
+ * is not supported." and the whole run dies.
+ *
+ * `noDefaults` skips that call (plus focus/media emulation, which this
+ * automation does not use — pages are explicitly brought to front instead).
+ * Requires Playwright >= 1.60.
+ */
+const CDP_CONNECT_OPTIONS = { noDefaults: true } as const;
 // Use Electron userData dir when running as packaged app, otherwise cwd
 const DATA_DIR = process.env.IMMOSCOUT_DATA_DIR || process.cwd();
 const CONTACTED_FILE = path.join(DATA_DIR, "contacted.json");
@@ -185,7 +203,7 @@ export async function openLoginWindow(): Promise<void> {
   });
 
   const { chromium } = await import("playwright");
-  const browser = await chromium.connectOverCDP(wsUrl);
+  const browser = await chromium.connectOverCDP(wsUrl, CDP_CONNECT_OPTIONS);
   try {
     const ctx = browser.contexts()[0] ?? (await browser.newContext());
     const page = await ctx.newPage();
@@ -269,7 +287,7 @@ export async function runAutomation(
       }).on("error", reject);
     });
     const { chromium: cr } = await import("playwright");
-    browser = await cr.connectOverCDP(wsUrl, { slowMo: 120 });
+    browser = await cr.connectOverCDP(wsUrl, { slowMo: 120, ...CDP_CONNECT_OPTIONS });
     context = browser.contexts()[0] ?? await browser.newContext();
     await context.addInitScript(() => {
       Object.defineProperty(navigator, "webdriver", { get: () => undefined });
@@ -277,6 +295,10 @@ export async function runAutomation(
     log("info", "Connected ✓");
 
     const page = await context.newPage();
+    // CDP_CONNECT_OPTIONS disables Playwright's focus emulation, so make the
+    // page genuinely frontmost instead — otherwise a backgrounded tab can
+    // behave as unfocused and break visibility-dependent interactions.
+    await page.bringToFront().catch(() => {});
     setActivePage(page); // register so stop button can close it immediately
     log("info", "Browser ready ✓");
 

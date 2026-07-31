@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 async function main() {
-  const browser = await chromium.connectOverCDP("http://localhost:9222");
+  // noDefaults is required on Chrome 147+ — see CDP_CONNECT_OPTIONS in immoscout.ts.
+  const browser = await chromium.connectOverCDP("http://localhost:9222", { noDefaults: true });
   const ctx = browser.contexts()[0];
   const page = await ctx.newPage();
   await page.goto("https://www.immobilienscout24.de", { waitUntil: "domcontentloaded" });
